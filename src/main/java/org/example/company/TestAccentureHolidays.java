@@ -40,7 +40,7 @@ public class TestAccentureHolidays {
     private static void printHolidays(Map<Date, String> holidayMap, String holidayType) {
         System.out.printf("%n %s", holidayType);
         Map<Integer, List<Map.Entry<Date, String>>> holidays = holidayMap.entrySet().stream()
-                .filter(e -> isWeekDay(holidayType, e))
+                .filter(TestAccentureHolidays::isWeekDay)
                 .collect(Collectors.groupingBy(e -> e.getKey().getMonth()));
 
         holidays.forEach((k, v) -> {
@@ -67,7 +67,7 @@ public class TestAccentureHolidays {
         throw new RuntimeException("Date not found");
     }
 
-    private static boolean isWeekDay(String holidayType, Map.Entry<Date, String> e) {
+    private static boolean isWeekDay(Map.Entry<Date, String> e) {
         return !(e.getValue().toUpperCase().contains(DayOfWeek.SATURDAY.name())
                 || e.getValue().toUpperCase().contains(DayOfWeek.SUNDAY.name()));
     }
