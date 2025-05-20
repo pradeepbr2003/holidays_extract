@@ -1,35 +1,25 @@
-package org.example.company;
+package org.example.company.holiday2;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.example.company.helper.HolidayEnum.*;
+import static org.example.company.helper.CommonEnum.EMPTY_STR;
+import static org.example.company.helper.DateEnum.DATE_FORMAT;
+import static org.example.company.helper.DateEnum.DATE_REGEX;
 
-public class AccHolidaysBangalore {
+public interface IAccHolidaysBangalore {
 
-    private static final Pattern pattern = Pattern.compile(DATE_REGEX.value());
-    private static final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT.value());
-
-    public static void main(String[] args) {
-        Map<Date, String> holidayMap = extractHolidays(HOLIDAY_BANGALORE_LOG.value());
-        printHolidays(holidayMap, MANDATE_HOLIDAY_MSG.value());
-        printHolidays(holidayMap, FLOAT_HOLIDAY_MSG.value());
-    }
-
-    private static void printHolidays(Map<Date, String> holidayMap, String holidayType) {
+    static void printHolidays(Map<Date, String> holidayMap, String holidayType) {
         System.out.printf("%n %s", holidayType);
         Map<Integer, List<Map.Entry<Date, String>>> holidays = holidayMap.entrySet().stream()
-                .filter(e -> isAllowedHolidayTypeAndNoWeekEnd(holidayType, e))
-                .collect(Collectors.groupingBy(e -> e.getKey().getMonth()));
+                .filter(e -> isWeekDayAndType(holidayType, e)).collect(Collectors.groupingBy(e -> e.getKey().getMonth()));
 
         holidays.forEach((k, v) -> {
             System.out.printf("%n-------------------------------------------");
@@ -41,14 +31,12 @@ public class AccHolidaysBangalore {
         });
     }
 
-    private static boolean isAllowedHolidayTypeAndNoWeekEnd(String holidayType, Map.Entry<Date, String> e) {
-        return e.getValue().contains(holidayType)
-                && !(e.getValue().toUpperCase().contains(DayOfWeek.SATURDAY.name())
-                || e.getValue().toUpperCase().contains(DayOfWeek.SUNDAY.name()));
+    static boolean isWeekDayAndType(String holidayType, Map.Entry<Date, String> e) {
+        return e.getValue().contains(holidayType) && !(e.getValue().toUpperCase().contains(DayOfWeek.SATURDAY.name()) || e.getValue().toUpperCase().contains(DayOfWeek.SUNDAY.name()));
     }
 
 
-    private static Map<Date, String> extractHolidays(String holidayLog) {
+    static Map<Date, String> extractHolidays(String holidayLog) {
         Map<Date, String> holidayMap = new HashMap<>();
         try {
             List<String> leaves = Files.readAllLines(Paths.get(holidayLog));
@@ -63,15 +51,16 @@ public class AccHolidaysBangalore {
     }
 
     public static Date extractDate(String str) {
-        Matcher matcher = pattern.matcher(str);
+        Matcher matcher = DATE_REGEX.pattern().matcher(str);
         if (matcher.find()) {
             String group = matcher.group();
             try {
-                return sdf.parse(group);
+                return DATE_FORMAT.formatter().parse(group);
             } catch (ParseException e) {
                 System.out.printf("Exception occurred : %s", e.getMessage());
             }
         }
         throw new RuntimeException("Date Not found");
     }
+
 }

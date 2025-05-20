@@ -1,31 +1,21 @@
-package org.example.company;
+package org.example.company.holiday1;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.example.company.helper.HolidayEnum.*;
+import static org.example.company.helper.CommonEnum.COMMA;
+import static org.example.company.helper.CommonEnum.PIPELINE;
+import static org.example.company.helper.DateEnum.DATE_FORMAT;
 
-public class AccentureHolidaysForBangalore {
+public interface IAccentureHolidaysFromBangalore {
 
-    private static final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT.value());
-
-    public static void main(String[] args) {
-        Map<Date, String> holidayMap = extractHolidays(MANDATE_BANG_HOLIDAYS_LOG.value());
-        printHolidays(holidayMap, MANDATE_HOLIDAY_MSG.value());
-
-        holidayMap = extractHolidays(FLOAT_BANG_HOLIDAYS_LOG.value());
-        printHolidays(holidayMap, FLOAT_HOLIDAY_MSG.value());
-
-    }
-
-    private static Map<Date, String> extractHolidays(String holidayLog) {
+    static Map<Date, String> extractHolidays(String holidayLog) {
         Map<Date, String> holidayMap = new HashMap<>();
         try {
             List<String> leaves = Files.readAllLines(Paths.get(holidayLog));
@@ -33,7 +23,7 @@ public class AccentureHolidaysForBangalore {
                 String[] words = line.split(COMMA.value());
                 try {
                     int len = words.length - 1;
-                    Date date = sdf.parse(words[len]);
+                    Date date = DATE_FORMAT.formatter().parse(words[len]);
                     StringBuffer buffer = new StringBuffer();
                     while (len > 0) {
                         buffer.append(words[--len]).append(PIPELINE.value());
@@ -50,7 +40,7 @@ public class AccentureHolidaysForBangalore {
     }
 
 
-    private static void printHolidays(Map<Date, String> holidayMap, String holidayType) {
+    static void printHolidays(Map<Date, String> holidayMap, String holidayType) {
         System.out.printf("%n %s", holidayType);
         Map<Integer, List<Map.Entry<Date, String>>> holidays = holidayMap.entrySet().stream()
                 .filter(e -> isWeekDay(e)).collect(Collectors.groupingBy(e -> e.getKey().getMonth()));
@@ -65,7 +55,8 @@ public class AccentureHolidaysForBangalore {
         });
     }
 
-    private static boolean isWeekDay(Map.Entry<Date, String> e) {
-        return !(e.getValue().toUpperCase().contains(DayOfWeek.SATURDAY.name()) || e.getValue().toUpperCase().contains(DayOfWeek.SUNDAY.name()));
+    static boolean isWeekDay(Map.Entry<Date, String> e) {
+        return !(e.getValue().toUpperCase().contains(DayOfWeek.SATURDAY.name())
+                || e.getValue().toUpperCase().contains(DayOfWeek.SUNDAY.name()));
     }
 }

@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import static org.example.company.helper.LeaveRegExp.*;
 
-public enum HolidayPattern {
+public enum LeavePattern {
     datePattern(Pattern.compile(DATE_REGEX.value())),
     weekDayPattern(Pattern.compile(WEEK_DAY_REG_EX.value())),
     holidayEventPattern(Pattern.compile(HOLIDAY_EVENT_REG_EX.value())),
@@ -12,7 +12,7 @@ public enum HolidayPattern {
 
     private final Pattern pattern;
 
-    HolidayPattern(Pattern pattern) {
+    LeavePattern(Pattern pattern) {
         this.pattern = pattern;
     }
 
